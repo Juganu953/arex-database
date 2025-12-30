@@ -1,0 +1,18 @@
+                                Table "public.users"
+    Column     |           Type           | Collation | Nullable |      Default      
+---------------+--------------------------+-----------+----------+-------------------
+ id            | uuid                     |           | not null | gen_random_uuid()
+ email         | text                     |           |          | 
+ phone         | text                     |           |          | 
+ password_hash | text                     |           |          | 
+ role          | text                     |           | not null | 
+ is_active     | boolean                  |           | not null | true
+ created_at    | timestamp with time zone |           | not null | now()
+ updated_at    | timestamp with time zone |           | not null | now()
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+    "users_email_key" UNIQUE CONSTRAINT, btree (email)
+    "users_phone_key" UNIQUE CONSTRAINT, btree (phone)
+Referenced by:
+    TABLE "otp_codes" CONSTRAINT "otp_codes_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+

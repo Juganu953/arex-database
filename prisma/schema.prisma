@@ -1,0 +1,178 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  phone             String?
+  name              String?
+  password          String
+  role              Role      @default(BUSINESS)
+  emailVerified     DateTime?
+  image             String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  isTrial           Boolean   @default(true)
+  trialStartDate    DateTime?
+  trialLeadsUsed    Int       @default(0)
+  trialLeadsTotal   Int       @default(100)
+  planId            String?
+  planStartDate     DateTime?
+  planExpiryDate    DateTime?
+  
+  currentPlan       Plan?     @relation(fields: [planId], references: [id])
+  leads             Lead[]
+  sessions          Session[]
+  accounts          Account[]
+  transactions      Transaction[]
+  agentProfile      AgentProfile?
+  businessProfile   BusinessProfile?
+  
+  // Note: @@check constraints removed for Prisma 6 compatibility
+  // You'll need to handle these constraints at application level
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Plan {
+  id          String   @id @default(cuid())
+  name        String
+  price       Float
+  leadsLimit  Int?
+  description String?
+  features    String[]
+  users       User[]
+  
+  @@unique([name])
+}
+
+model Lead {
+  id            String   @id @default(cuid())
+  userId        String
+  source        String
+  status        LeadStatus @default(NEW)
+  value         Float?
+  agentId       String?
+  campaignId    String?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  
+  user          User     @relation(fields: [userId], references: [id])
+  agent         AgentProfile? @relation(fields: [agentId], references: [id])
+}
+
+model AgentProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  agentId       String   @unique
+  tier          AgentTier @default(BRONZE)
+  totalEarnings Float    @default(0)
+  totalLeads    Int      @default(0)
+  conversionRate Float   @default(0)
+  mpesaNumber   String
+  
+  user          User     @relation(fields: [userId], references: [id])
+  leads         Lead[]
+}
+
+model BusinessProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  businessName  String
+  industry      String
+  size          BusinessSize
+  location      String?
+  
+  user          User     @relation(fields: [userId], references: [id])
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  userId        String
+  type          TransactionType
+  amount        Float
+  mpesaCode     String?
+  status        TransactionStatus @default(PENDING)
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  
+  user          User     @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  BUSINESS
+  AGENT
+  ADMIN
+}
+
+enum PlanType {
+  GOLD
+  PLATINUM
+  DIAMOND
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONVERTED
+  LOST
+}
+
+enum AgentTier {
+  BRONZE
+  SILVER
+  GOLD
+  DIAMOND
+}
+
+enum BusinessSize {
+  STARTUP
+  SMALL
+  MEDIUM
+  LARGE
+  ENTERPRISE
+}
+
+enum TransactionType {
+  PAYMENT
+  WITHDRAWAL
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}

@@ -1,0 +1,40 @@
+==================================
+FAVICON DEPLOYMENT FOR arex.co.ke
+==================================
+
+FILES TO UPLOAD:
+1. favicon.ico
+2. favicon-16x16.png
+3. favicon-32x32.png
+
+STEP-BY-STEP:
+1. LOGIN to cPanel:
+   - Go to: https://arex.co.ke/cpanel
+   - Enter your username/password
+
+2. UPLOAD FILES:
+   - Find "File Manager" in cPanel
+   - Go to "public_html" folder
+   - Click "Upload" button
+   - Upload all 3 files above
+
+3. ADD HTML CODE:
+   - Go back to File Manager
+   - Open your main HTML file (usually index.html)
+   - Find <head> section
+   - Add this code BEFORE </head>:
+
+   <!-- Favicon -->
+   <link rel="icon" href="/favicon.ico" type="image/x-icon">
+   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+4. SAVE and TEST:
+   - Save the file
+   - Visit https://arex.co.ke
+   - Clear cache: Ctrl+F5
+
+TROUBLESHOOTING:
+- If favicon doesn't show: wait 5 minutes, clear browser cache
+- Files must be in "public_html" folder
+- Make sure HTML code is correct
