@@ -1,28 +1,25 @@
-const { Client } = require('pg');
-require('dotenv').config();
+// Add this after your version check in test-connection.js:
 
-async function testConnection() {
-  const client = new Client({
-    host: process.env.PG_HOST,
-    port: parseInt(process.env.PG_PORT),
-    database: process.env.PG_DATABASE,
-    user: process.env.PG_USER,
-    password: process.env.PG_PASSWORD,
-    ssl: true  // JUST THIS LINE - SIMPLE AND WORKS
-  });
+// Test 1: List databases
+const dbs = await client.query('SELECT datname FROM pg_database WHERE datistemplate = false');
+console.log('\n📊 Available databases:');
+dbs.rows.forEach(row => console.log('  -', row.datname));
 
-  try {
-    console.log('\n🔗 Attempting to connect...');
-    await client.connect();
-    console.log('✅ Connected successfully!');
-    const result = await client.query('SELECT version()');
-    console.log('Version:', result.rows[0].version);
-    await client.end();
-    console.log('👋 Closed');
-  } catch (error) {
-    console.error('❌ Failed:', error.message);
-  }
-}
+// Test 2: Create a test table
+await client.query(`
+  CREATE TABLE IF NOT EXISTS test_table (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    created_at TIMESTAMP DEFAULT NOW()
+  )
+`);
+console.log('✅ Test table created/verified');
 
-testConnection();
-  
+// Test 3: Insert some data
+await client.query("INSERT INTO test_table (name) VALUES ('Test User')");
+console.log('✅ Data inserted');
+
+// Test 4: Query the data
+const results = await client.query('SELECT * FROM test_table ORDER BY id DESC LIMIT 5');
+console.log('\n📝 Recent test records:');
+results.rows.forEach(row => console.log(`  ID: ${row.id}, Name: ${row.name}, Created: ${row.created_at}`));
