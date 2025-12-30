@@ -1,5 +1,27 @@
+cat > .gitignore << 'EOF'
+# Dependencies
 node_modules/
+
+# Environment variables
 .env
 .env.local
-.DS_Store
+.env*.local
+
+# Logs
+logs
 *.log
+npm-debug.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# SSL certificates (if sensitive)
+config/ca.pem
+EOF
